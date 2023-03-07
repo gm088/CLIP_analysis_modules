@@ -1,7 +1,7 @@
 #!/bin/bash
 
-pureclip="~/prog/clip/IP7_and_DCIP/pureclip/merged_reps/output_bed6.bed"
-motif_bg="~/enhancedClip/tx_5prime_nopeak_exprcontrol_randomsample.bed"
+pureclip="/Users/IEO5559/prog/clip/IP7_and_DCIP/pureclip/merged_reps/output_bed6.bed"
+motif_bg="/Users/IEO5559/enhancedClip/tx_5prime_nopeak_exprcontrol_randomsample.bed"
 wd=`pwd`
 
 for file in `ls *_nohistone.bed`;
