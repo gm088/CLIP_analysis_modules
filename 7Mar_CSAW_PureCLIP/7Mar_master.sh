@@ -48,9 +48,9 @@ do
 		wait
 
 		head -n 1000 xl_sites_gt${i}_sorted.bed > xl_sites_gt${i}_sorted_top1000.bed
-		head -n 1000 xl_sites_collapsed1kb_gt${i}_sorted.bed > xl_sites_collapsed1kb_gt${i}_sorted_top1000.bed ${motif_bg}
+		head -n 1000 xl_sites_collapsed1kb_gt${i}_sorted.bed > xl_sites_collapsed1kb_gt${i}_sorted_top1000.bed 
 		###motif search
-		custom_bg_streme.sh 300 xl_${i}_top1000 xl_sites_gt${i}_sorted_top1000.bed
+		custom_bg_streme.sh 300 xl_${i}_top1000 xl_sites_gt${i}_sorted_top1000.bed ${motif_bg}
 		wait
 		custom_bg_streme.sh 300 xl_${i}_top1000_collapsed xl_sites_collapsed1kb_gt${i}_sorted_top1000.bed ${motif_bg}
 		wait
