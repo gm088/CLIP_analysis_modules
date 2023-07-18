@@ -1,6 +1,5 @@
 library(fitdistrplus)
-#library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-
+library(AnnotationDbi)
 
 function_to_match_expr = function(fg, bg, grain = 0.1, ssize = 2000){
   
@@ -252,10 +251,79 @@ parse_initiators = function(ranges){
   return(c(r_plus_final, r_minus_final))
   
 }
+
+get_5p_GRO = function(ohler, NDR_regions, region, res = 10, filter = 10, exact = T){
   
+  #given a region, find TSS based on 5' GROseq data
+  # retrieve TSS using NDR
+  prom = NDR_regions[NDR_regions$id == region$NDR]
+  strand(prom) = strand(region)
 
+  candidates = subsetByOverlaps(ohler, prom)
+  medval = median(candidates$V5)
+  #first filtering
+  candidates = candidates[candidates$V5 > medval]
+  
+  candidates$cluster = csaw::mergeWindows(candidates, ignore.strand = F, tol = res)$ids
+  df = as.data.frame(candidates) %>% 
+    group_by(cluster) %>% 
+    mutate(cluscov = sum(V5)) %>% 
+    dplyr::filter(cluscov > filter)
+  
+  if(nrow(df) == 0){
+    #region$ohler = NA
+    #make empty ranges
+    region$ohler = GRangesList(GRanges())
+    return(region)
+  }
+  #dev.off()
+  #hist(unlist(sapply(1:length(candidates), function(x){rep(start(candidates[x]), candidates[x]$V5)})),
+  #     breaks = 100)
 
+  if(exact == T){
+    #get the one with most cov
+    final_TSS = makeGRangesFromDataFrame(df %>% 
+                               arrange(desc(V5), .by_group = T) %>% 
+                               dplyr::filter(row_number() == 1) %>% 
+                               ungroup() %>% 
+                               dplyr::select(-c(V4, cluster)), 
+                             keep.extra.columns = T)
+    #append to mcols
+    region$ohler = GRangesList(final_TSS)
+    
+    return(region)
+  }else{
+    ##midpoint
+    final_TSS = makeGRangesFromDataFrame(df %>% 
+      mutate(clus_start = min(start), clus_end = max(end)) %>% 
+      mutate(clus_width = abs(clus_start - clus_end)) %>% 
+      arrange(desc(V5), .by_group = T) %>% 
+      dplyr::filter(row_number() == 1) %>% 
+      ungroup() %>% 
+      dplyr::select(-c(V4, V5, cluster, start, end, width)),
+      start.field = "clus_start",
+      end.field = "clus_end",
+      keep.extra.columns = T)
+    
+    region$ohler = GRangesList(final_TSS)
+    
+    return(region)
+  }
+  
+}
 
+subroutine_x = function(ranges){
+  
+  #x = start(ranges)-start(ranges)[1]
+  #y = ranges$V5
+  data = unlist(sapply(1:length(ranges), function(x){rep(start(ranges[x]), ranges[x]$V5)}))
+  par(mfrow = c(1,2))
+  hist(data, breaks = 100)
+  #repnormmixmodel.sel(do.call('rbind', list(data, data)), k = 1:4)
+  #test = normalmixEM(data, lambda = NULL, mu = NULL, sigma = NULL, k = 2, arbvar = F)
+  plot(ecdf(data))
+
+  }
 
 
 
