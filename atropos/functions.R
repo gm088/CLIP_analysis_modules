@@ -1,5 +1,4 @@
 library(fitdistrplus)
-library(AnnotationDbi)
 
 function_to_match_expr = function(fg, bg, grain = 0.1, ssize = 2000){
   
@@ -323,13 +322,225 @@ subroutine_x = function(ranges){
   #test = normalmixEM(data, lambda = NULL, mu = NULL, sigma = NULL, k = 2, arbvar = F)
   plot(ecdf(data))
 
+}
+
+streme_wrapper = function(fg_regions, bg_regions, 
+                          minwidth = 4, maxwidth = 6, n_mots = 30, 
+                          order = 2, write_dir = "auto",
+                          as.bed = T){
+  
+  #if provided as regions and not sequences
+  if(as.bed == T){
+    fg_seqs = getSeq(BSgenome.Hsapiens.UCSC.hg38.masked, fg_regions)
+    bg_seqs = getSeq(BSgenome.Hsapiens.UCSC.hg38.masked, bg_regions)
+  }else{
+    fg_seqs = fg_regions
+    bg_seqs = bg_regions
   }
+  
+  results = runStreme(
+    fg_seqs,
+    bg_seqs,
+    outdir = write_dir,
+    objfun = "de",
+    alph = "rna",
+    silent = T,
+    rna = T,
+    minw = minwidth,
+    maxw = maxwidth,
+    nmotifs = n_mots,
+    order = order
+  )
+  #motlist = results %>% to_list()
+  #ggseqlogo::ggseqlogo(lapply(1:n_mots, function(x){motlist[[x]]["motif"]}), ncol = 2)
+  
+  return(results)
+  
+}
+
+viewTSS = function(systemTUs_obj, width = 100, shift_val = -50, unique = T, tss_mode = "main"){
+  
+  if(unique == T){
+    print(paste0("running get_main_TSS() to get Ohler TSS w ", tss_mode, " coverage per tx"))
+    view_motifs(consensusMatrix(getSeq(
+      genome, shiftStranded(resize(
+        get_uniq_TSS(systemTUs_obj, mode = tss_mode), 
+        width = width, fix = "start"), shift_val)
+    ))[1:4,], show.positions = F)
+  }else{
+    tsses = unlist(GRangesList(systemTUs_obj$ohler))
+    
+    view_motifs(consensusMatrix(getSeq(
+      genome, strandawareshift(resize(tsses, width = width, fix = "start"), shift_val)
+    ))[1:4,], show.positions = F)
+  }
+}
+
+get_uniq_TSS = function(x, mode = "main"){
+  
+  #given ranges, get the Ohler TSS with highest coverage - ZERO or ONE per tx
+  expanded = unlist(GRangesList(x$ohler))
+  expanded$tag = names(expanded); names(expanded) = NULL
+  
+  if(mode == "main"){
+    reduced = makeGRangesFromDataFrame(as.data.frame(expanded) %>% 
+                                         group_by(tag) %>%
+                                         arrange(desc(V5), .by_group = T) %>%
+                                         dplyr::filter(row_number() == 1),
+                                       keep.extra.columns = T)
+  }else if(mode == "leftmost"){
+    #for plus strand leftmost, for minus strand rightmost
+    exp_plus = expanded[strand(expanded) == "+"]
+    exp_minus = expanded[strand(expanded) == "-"]
+    exp_plus_reduced = makeGRangesFromDataFrame(as.data.frame(exp_plus) %>% 
+                                                  group_by(tag) %>% 
+                                                  arrange(start, .by_group = T) %>% 
+                                                  dplyr::filter(row_number() == 1),
+                                                keep.extra.columns = T)
+    exp_minus_reduced = makeGRangesFromDataFrame(as.data.frame(exp_minus) %>% 
+                                                  group_by(tag) %>% 
+                                                  arrange(desc(end), .by_group = T) %>% 
+                                                  dplyr::filter(row_number() == 1),
+                                                keep.extra.columns = T)
+    reduced = c(exp_plus_reduced, exp_minus_reduced)
+    
+  }else if(mode == "lowest"){
+    reduced = makeGRangesFromDataFrame(as.data.frame(expanded) %>% 
+                                         group_by(tag) %>%
+                                         arrange(desc(V5), .by_group = T) %>%
+                                         dplyr::filter(row_number() == n()),
+                                       keep.extra.columns = T)
+  }
+  print(paste0(length(expanded), " initial TSS, ", length(reduced), " final TSS"))
+  
+  return(reduced)
+}
+
+CLIP_systemTUs_get = function(clip_peaks, systemtus){
+  
+  #return systemTUs object with associated CLIP peaks and SCORE as metadata
+  clop = findOverlaps(systemtus, clip_peaks, maxgap = 1000, ignore.strand = F)
+  t1 = systemtus[queryHits(clop)]
+  t2 = clip_peaks[subjectHits(clop)]
+  t2$NDR_tag = t1$NDR_tag
+  
+  summarised = as.data.frame(t2) %>% 
+    group_by(NDR_tag) %>% 
+    summarise(mean_adj_score = mean(adj_score), mean_logFC = mean(log2FC))
+  
+  CLIP_TUs = systemtus[summarised$NDR_tag]
+  CLIP_TUs$mean_adj_score = summarised$mean_adj_score
+  CLIP_TUs$mean_log2FC = summarised$mean_logFC
+  
+  
+  return(CLIP_TUs[order(CLIP_TUs$mean_adj_score, decreasing = T)])
+}
+
+get_distance_clip = function(CLIP_TUs, clipper_peaks){
+  ###now, for the clipper peaks, record distance to nearest TSS
+  browser()
+  clip_ohler = get_uniq_TSS(CLIP_TUs, mode = "main")
+  
+  ##append the overlap info
+  clusters[queryHits(clop)[!duplicated(queryHits(clop))],]
+  
+  
+}
 
 
+## function to output TSS seqlogo and do motif search using streme
+TSS_and_motif = function(outdir, filename, fg, bg, tss_mode, shift_val, width,
+                         do_heatmap = T, usePROSEQ = F, minw = 4, maxw = 10, streme_order = 1){
+  
+  ##make the outdir
+  dir.create(file.path(getwd(), "Shannahan", outdir))
 
+  pdf(file.path(getwd(), "Shannahan", outdir, filename), height = 5, width = 10)
+  ###viewTSS
+  p1 = viewTSS(fg, width = width, shift_val = shift_val, unique = T, tss_mode = tss_mode)
+  print(p1)
+  p2 = viewTSS(bg, width = width, shift_val = shift_val, unique = T, tss_mode = tss_mode)
+  print(p2)
+  
+  ##heatmap
+  if(do_heatmap == T){
+    
+    print("making heatmap of regions")
+    testseqs = getSeq(
+      genome, shiftStranded(resize(
+        get_uniq_TSS(fg, mode = tss_mode), 
+        width = width, fix = "start"), shift_val)
+    )
+    testmat = as.matrix(testseqs)
+    
+    testmat[testmat == "-"] = 0
+    testmat[testmat == "A"] = 1
+    testmat[testmat == "C"] = 2
+    testmat[testmat == "G"] = 2
+    testmat[testmat == "T"] = 1
+    
+    testmat = apply(testmat, 2, as.numeric)
+    
+    pheatmap(testmat, cluster_rows = F, cluster_cols = F,
+             color = c("white", "green", "blue", "orange", "red"),
+             breaks = c(0, 0.5, 1.5, 2.5, 3.5, 4.5))  # distances 0 to 0.5 are white, etc...
+    
+    testseqs2 = getSeq(
+      genome, shiftStranded(resize(
+        get_uniq_TSS(bg, mode = tss_mode), 
+        width = width, fix = "start"), shift_val)
+    )
+    testmat2 = as.matrix(testseqs2)
+    
+    testmat2[testmat2 == "-"] = 0
+    testmat2[testmat2 == "A"] = 1
+    testmat2[testmat2 == "C"] = 2
+    testmat2[testmat2 == "G"] = 2
+    testmat2[testmat2 == "T"] = 1
+    
+    testmat2 = apply(testmat2, 2, as.numeric)
+    
+    pheatmap(testmat2, cluster_rows = F, cluster_cols = F,
+             color = c("white", "green", "blue", "orange", "red"),
+             breaks = c(0, 0.5, 1.5, 2.5, 3.5, 4.5))
+    dev.off()
+  }else{
+    dev.off()
+  }
+  
+  if(usePROSEQ == T){
+    print("using proseq start sites for motif search")
+    fg_seqs = getSeq(genome, promoters(fg, upstream = 0, downstream = width))
+    bg_seqs = getSeq(genome, promoters(bg, upstream = 0, downstream = width))
+  }else{
+    fg_seqs = getSeq(
+      genome, shiftStranded(resize(
+        get_uniq_TSS(fg, mode = tss_mode), 
+        width = width, fix = "start"), shift_val)
+    )
+    bg_seqs = getSeq(
+      genome, shiftStranded(resize(
+        get_uniq_TSS(bg, mode = tss_mode), 
+        width = width, fix = "start"), shift_val)
+    )
+  }
+  
+  ##motif search
+  print("running streme")
+  
+  sapply(streme_order, function(x){
+    streme_wrapper(fg_seqs, 
+                   bg_seqs, 
+                   write_dir = paste0(file.path(getwd(), "Shannahan", outdir, "streme_order_"),
+                                      as.character(x)),
+                   order = x,
+                   minwidth = minw,
+                   maxwidth = maxw,
+                   as.bed = F)
+  })
 
-
-
+  
+}
 
 
 

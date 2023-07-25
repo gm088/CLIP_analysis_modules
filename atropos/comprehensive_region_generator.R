@@ -55,6 +55,15 @@ systemTUs = makeGRangesFromDataFrame(as.data.frame(systemTUs) %>%
 
 systemTUs = readRDS("augmented_16Jul_recounted.RDS")
 
+##finally, get Ohler
+systemTUs_w_ohler = unlist(GRangesList(
+  lapply(1:length(systemTUs), function(x){get_5p_GRO(ohlertss, NDR, systemTUs[x])})
+))
+
+systemTUs = readRDS("Shannahan/systemTUs_w_ohler.RDS")
+names(systemTUs) = systemTUs$NDR_tag
+names(systemTUs$ohler) = names(systemTUs)
+
 ##### now construct 
 # first, overlap with pcg to get the protein coding TUs
 systemTUs$iscoding = countOverlaps(systemTUs, coding) > 0
@@ -62,13 +71,6 @@ systemTUs$iscoding = countOverlaps(systemTUs, coding) > 0
 ##confidence at the cost of sensitivity
 systemTUs = systemTUs[!is.na(systemTUs$logCPM)]
 systemTUs = systemTUs[is.na(systemTUs$alt)]
-
-###get Ohler ####
-
-systemTUs_w_ohler = unlist(GRangesList(
-  lapply(1:length(systemTUs), function(x){get_5p_GRO(ohlertss, NDR, systemTUs[x])})
-  ))
-
 
 ####first, bidirectional (pcg-pcg)
 # same NDR, both coding
@@ -105,27 +107,10 @@ enh = makeGRangesFromDataFrame(as.data.frame(systemTUs) %>%
                                  dplyr::filter(length(unique(strand)) > 1),
                                keep.extra.columns = T)
 
+#checks
 length(bidir) + length(unidir) + length(div) + length(enh)
-
 length(systemTUs)
-
 table(sapply(div$ohler, length) == 0)
-
-
-div_sensitive = subsetByOverlaps(div, new_siw)
-
-div_sensitive_mates = check = div[div$NDR %in% div_sensitive$NDR & !(div$NDR_tag %in% div_sensitive$NDR_tag)]
-
-as.data.frame(div) %>%
-  ggplot(aes(x = iscoding, y = logFC)) + 
-  geom_boxplot(aes(color=factor(iscoding)), outlier.shape=NA, width = 0.5, lwd=1.25, notch = T) + 
-  theme_minimal()
-
-#mate-wise
-check = as.data.frame(div) %>% 
-  group_by(NDR) %>% 
-  arrange(iscoding, .by_group = T) %>% 
-  mutate(diff = abs(lag(logFC)/logFC))
 
 
 
