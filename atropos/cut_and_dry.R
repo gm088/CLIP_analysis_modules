@@ -1,7 +1,10 @@
 source("/Users/IEO5559/enhancedClip/Shannahan/feat_extr_kmer_functions.R")
 source("~/enhancedClip/functions_2.R")
 source("/Users/IEO5559/enhancedClip/Shannahan/functions.R")
-options(meme_bin = "/Users/IEO5559/bin/bin")
+options(meme_bin = "/Users/IEO5559/meme/bin")
+
+library(seqinr)
+library(LncFinder)
 
 #import the files you need for overlapping
 my_siW = customimportbed6("/Users/IEO5559/prog/bedfiles/mysiW/fixed_filter50/mysiW_fdr0.0001_gt1kb.bed")
@@ -48,41 +51,132 @@ ms_test = streme_wrapper(promoters(get_uniq_TSS(systemTUs[div_sensitive$NDR_tag]
                          maxwidth = 30)
 
 ### run the searches
+
+extension = 1000
+
 TSS_and_motif(outdir = "outputs/bg2", filename = "CLIP_TU_vs_bg2.pdf", 
               fg = CLIP_TUs, bg = bg2, tss_mode = "main", 
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs", bg_name = "coding unaffected")
 
 TSS_and_motif(outdir = "outputs/bg3", filename = "CLIP_TU_vs_bg3.pdf", 
               fg = CLIP_TUs, bg = bg3, tss_mode = "main", 
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs", bg_name = "divergent units (unaffected)")
 
 TSS_and_motif(outdir = "outputs/tophalf_vs_bg3", filename = "tophalf_vs_bg3.pdf", 
               fg = CLIP_TUs[1:400], bg = bg3, tss_mode = "main", 
-              width = 100, shift_val = -2, minw = 4, maxw = 20, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 20, streme_order = 1:4,
+              fg_name = "CLIP_TUs top half", bg_name = "divergent units (unaffected)")
 
 TSS_and_motif(outdir = "outputs/bg5", filename = "CLIP_TU_vs_bg5.pdf", 
               fg = CLIP_TUs, bg = bg5, tss_mode = "main", 
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs", bg_name = "mates of known pa-RNA")
 
 TSS_and_motif(outdir = "outputs/bg5_pro", filename = "CLIP_TU_vs_bg5.pdf", 
               fg = CLIP_TUs, bg = bg5, tss_mode = "main", usePROSEQ = T,
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs", bg_name = "mates of sensitive pa-RNA")
 
 TSS_and_motif(outdir = "outputs/tophalf_vs_bg3_pro", filename = "tophalf_vs_bg3_pro.pdf", 
               fg = CLIP_TUs[1:400], bg = bg3, tss_mode = "main", usePROSEQ = T,
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs top half", bg_name = "divergent units (unaffected)")
 
 TSS_and_motif(outdir = "outputs/div_sensitive", filename = "div_vs_div_sensitive.pdf", 
               fg = systemTUs[div_sensitive$NDR_tag], bg = bg5, tss_mode = "main", 
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "sensitive pa-RNA", bg_name = "mates of sensitive pa-RNA")
 
 TSS_and_motif(outdir = "outputs/tophalf_vs_bg5", filename = "tophalf_vs_bg5.pdf", 
               fg = CLIP_TUs[1:400], bg = bg5, tss_mode = "main", 
-              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4)
+              width = extension, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs top half", bg_name = "mates of sensitive pa-RNA")
 
 
+#####testing
+TSS_and_motif(outdir = "outputs/vs_bg5_rightmost", filename = "vs_bg5_rightmost.pdf", 
+              fg = CLIP_TUs, bg = bg5, fg_tss_mode = "main", bg_tss_mode = "rightmost",
+              width = 100, shift_val = -2, minw = 4, maxw = 30, streme_order = 1:4,
+              fg_name = "CLIP_TUs top half", bg_name = "mates of sensitive pa-RNA")
 
-unlist(GRangesList(systemTUs[bidir$NDR_tag]$ohler))
+TSS_and_motif(outdir = "outputs/div_sensitive_rightmost", filename = "div_vs_div_sensitive.pdf", 
+              fg = systemTUs[div_sensitive$NDR_tag], bg = bg5, fg_tss_mode = "rightmost", bg_tss_mode = "rightmost",
+              width = 200, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "sensitive pa-RNA", bg_name = "mates of sensitive pa-RNA")
+
+TSS_and_motif(outdir = "outputs/bidir_left_vs_right", filename = "bidir_left_vs_right", 
+              fg = systemTUs[bidir$NDR_tag], bg = systemTUs[bidir$NDR_tag], fg_tss_mode = "leftmost", bg_tss_mode = "rightmost",
+              width = 200, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "bidir leftmost", bg_name = "bidir rightmost")
+
+TSS_and_motif(outdir = "outputs/tophalf_vs_bg5_meme", filename = "tophalf_vs_bg5.pdf", 
+              fg = CLIP_TUs[1:400], bg = bg5,  fg_tss_mode = "main", bg_tss_mode = "main",
+              width = 100, shift_val = -2, minw = 4, maxw = 10, streme_order = 1:4,
+              fg_name = "CLIP_TUs top half", bg_name = "mates of sensitive pa-RNA", usestreme = F)
+
+
+###### meme test
+
+fg = getSeq(genome, shiftStranded(resize(get_uniq_TSS(CLIP_TUs, mode = "main"), width = 100, fix = "start"), -2))
+names(fg) = get_uniq_TSS(CLIP_TUs, mode = "main")$tag
+bg = getSeq(genome, shiftStranded(resize(get_uniq_TSS(bg5, mode = "main"), width = 100, fix = "start"), -2))
+names(bg) = get_uniq_TSS(bg5, mode = "main")$tag
+
+results = runMeme(
+  fg,
+  control = bg,
+  outdir = "Shannahan/outputs/tophalf_vs_bg5_meme",
+  alph = "rna",
+  objfun = "de",
+  minw = 4,
+  maxw = 10,
+  nmotifs = 30,
+  combined_sites = T,
+  shuf = 2,
+  parse_genomic_coord = F,
+  mod = "anr"
+)
+
+
+####RNA fold test 
+width=20
+writeXStringSet(
+  getSeq(genome, shiftStranded(resize(get_uniq_TSS(CLIP_TUs, mode = "main"), width = width, fix = "start"), -2)), 
+  filepath = "/Users/ieo5559/tmpfastas/fg.fa")
+writeXStringSet(
+  getSeq(genome, shiftStranded(resize(get_uniq_TSS(bg5, mode = "main"), width = width, fix = "start"), -2)), 
+  filepath = "/Users/ieo5559/tmpfastas/bg.fa")
+
+fg_seqs = read.fasta("/Users/ieo5559/tmpfastas/fg.fa")
+bg_seqs = read.fasta("/Users/ieo5559/tmpfastas/bg.fa")
+
+folded_fg = run_RNAfold(fg_seqs)
+folded_bg = run_RNAfold(bg_seqs)
+
+hist(as.numeric(unlist(lapply(folded_bg, function(x){x[[3]]}))))
+hist(as.numeric(unlist(lapply(folded_fg, function(x){x[[3]]}))), add = T)
+
+lapply(folded_fg, function(x){x[2]})[1:5]
+
+system2("RNAfold", args = c("-i /Users/ieo5559/tmpfastas/fg.fa", "-p"))
+
+
+####write fasta files for other motif search tools
+
+ups = 20
+downs = 150
+dir1 = "/Users/ieo5559/enhancedClip/Shannahan/region_fastas/5primeGRO/"
+dir2 = "/Users/ieo5559/enhancedClip/Shannahan/region_fastas/PROSEQ/"
+
+writeregions(systemtus_list = list(CLIP_TUs, bg3, bg5), ups = ups, downs = downs, 
+             tags = list("CLIP_TU", "bg3", "bg5"), dir = dir1, PROSEQ = F)
+
+writeregions(systemtus_list = list(CLIP_TUs, bg3, bg5), ups = ups, downs = downs, 
+             tags = list("CLIP_TU_pro", "bg3_pro", "bg5_pro"), dir = dir2, PROSEQ = T)
+
+####
 
 viewTSS(systemTUs[div_sensitive$NDR_tag], width = 200, shift_val = -10, tss_mode = "main")
 
@@ -106,7 +200,6 @@ check = as.data.frame(div) %>%
 
 ##toy motif search
 df_res = streme_wrapper(testreg1, testreg2, write_dir = "Shannahan/test")
-
 #plotting the positional distribution
 matplot(as.numeric(str_split(trimws(df_res$site_distr[13], "left"), " ")[[1]]), type = "l")
 
