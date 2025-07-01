@@ -1,4 +1,4 @@
-# Custom analysis pipeline for enhanced Corss-linking and Immunoprecipitation (eCLIP) analysis
+# Custom analysis pipeline for enhanced Cross-linking and Immunoprecipitation (eCLIP) analysis
 
 Running enhanced CLIP analysis on HPC cluster with PBS Pro
 
