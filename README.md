@@ -1,8 +1,8 @@
-# Project Title
+# Custom analysis pipeline for enhanced Corss-linking and Immunoprecipitation (eCLIP) analysis
 
 Running enhanced CLIP analysis on HPC cluster with PBS Pro
 
-## Getting Started
+## Description
 
 This repo contains the scripts needed from start to finish
 
