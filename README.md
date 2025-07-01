@@ -12,5 +12,5 @@ example
 
 ## Misc
 
-* [Brian Yee's CLIPper docker images]https://hub.docker.com/r/brianyee/clipper/
-* [Brian Yee's IDR docker images]https://hub.docker.com/r/brianyee/merge_peaks/tags 
+* [Brian Yee's CLIPper docker images](https://hub.docker.com/r/brianyee/clipper/) - Used for peak calling
+* [Brian Yee's IDR docker images](https://hub.docker.com/r/brianyee/merge_peaks/) - Used for calculation of enrichment and IDR
