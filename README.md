@@ -6,9 +6,6 @@ Running enhanced CLIP analysis on HPC cluster with PBS Pro
 
 This repo contains the scripts needed from start to finish
 
-```
-example
-```
 
 ## Misc
 
