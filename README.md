@@ -10,9 +10,9 @@ This repo contains the scripts needed from start to finish
 * peakcalling - generate custom annotation for peakcaller, call peaks using CLIPpers [IDR](https://www.encodeproject.org/pipelines/ENCPL357ADL/)
 * peakcalling_2 - calibrate scores of called peaks for final ranking, de-novo motif search
 
-The peak calling models reads on a transcripts to a poisson distribution in order to call peaks, with parameter equal to read count per unit length - see [here](https://github.com/YeoLab/clipper/blob/master/clipper/src/call_peak.py). 
+The peak calling models reads on a transcript to a poisson distribution in order to call peaks, with parameter equal to read count per unit length - see [here](https://github.com/YeoLab/clipper/blob/master/clipper/src/call_peak.py). 
 
-The score calibration adjusts the score of a peak (the -log10 p-value) by the abundance of the underlying transcript. Here, the former is simply divided by the latter. Though perhaps overly simple, the results are the same if the transcript abundances in the system are fitted to a normal distribution, and the fitted values used for the calibration.
+The score calibration adjusts the score of a peak (the -log10 p-value) by the abundance of the underlying transcript. 
 
 ## Misc
 
