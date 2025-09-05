@@ -21,5 +21,5 @@ The score calibration adjusts the score of a peak (the -log10 p-value) by the ab
 
 ## Overview
 
-![CLIP workflow.png](https://github.com/gm088/CLIP_analysis_modules/blob/main/CLIP&workflow.png)
+![CLIP workflow.png](https://github.com/gm088/CLIP_analysis_modules/blob/main/CLIP%20workflow.png)
 
