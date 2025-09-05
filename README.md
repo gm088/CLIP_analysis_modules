@@ -18,3 +18,8 @@ The score calibration adjusts the score of a peak (the -log10 p-value) by the ab
 
 * [Brian Yee's CLIPper docker images](https://hub.docker.com/r/brianyee/clipper/) - Used for peak calling
 * [Brian Yee's IDR docker images](https://hub.docker.com/r/brianyee/merge_peaks/) - Used for calculation of enrichment and IDR
+
+## Overview
+
+![alt text](./eCLIP\ workflow.png)
+
