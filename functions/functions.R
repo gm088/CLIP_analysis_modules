@@ -1710,7 +1710,6 @@ nc_reg_annotation_MANE = function(mane, regs){
 
 BL = import("/hpcnfs/data/GN2/gmandana/annotation/small_RNA_tothrow_and_just_tRNA_hg38_encode_BL_bed4.bed")
 
-####porco Dio
 ## I need a function to generate a metaplot...
 ## given the coverage matrix, and metadata  
 metaplotter = function(matrix, metadata, return_df = F, custom_x_ticks = NULL){
