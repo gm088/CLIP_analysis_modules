@@ -1,11 +1,10 @@
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/ENHANCEDCLIP/feat_extr_kmer_functions.R")
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/insp/functions_2.R")
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/Shannahan/functions.R")
+source("feat_extr_kmer_functions.R")
+source("functions_2.R")
+source("functions.R")
 library(GenomicAlignments)
 library(BiocParallel)
 
 ###### metaplot
-#BList = customimportbed6("/hpcnfs/data/GN2/gmandana/annotation/small_RNA_tRNA_RPL_RPPH_bed6.bed")
 BList = c(BList, customimportbed6("/hpcnfs/data/GN2/gmandana/annotation/small_RNA_tRNA_RPL_RPPH_bed6.bed"))
 
 bwstem = "/hpcnfs/data/GN2/gmandana/take2project/clip_2_electric_boogaloo/analysis/read2bw/"

@@ -9,7 +9,7 @@ library(reshape2)
 library(dplyr)
 library(tidyr)
 library(forcats)
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/ENHANCEDCLIP/feat_extr_kmer_functions.R")
+source("feat_extr_kmer_functions.R")
 
 bams_f = c("/hpcnfs/data/GN2/gmandana/take2project/t3_reseq/mapped/07/fwd.bam",
            "/hpcnfs/data/GN2/gmandana/take2project/t3_reseq/mapped/15/fwd.bam",

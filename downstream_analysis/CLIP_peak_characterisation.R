@@ -1,6 +1,6 @@
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/ENHANCEDCLIP/feat_extr_kmer_functions.R")
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/insp/functions_2.R")
-source("/hpcnfs/data/GN2/gmandana/bin/4.1.0/home/ieo5559/Shannahan/functions.R")
+source("feat_extr_kmer_functions.R")
+source("functions_2.R")
+source("functions.R")
 library(hues)
 
 #load the annotation

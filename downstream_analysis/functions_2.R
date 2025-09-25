@@ -1,5 +1,4 @@
 library(rtracklayer)
-h3k4 = import("/hpcnfs/data/GN2/gmandana/annotation/HeLa_H3K4me3_peaks_bed6.bed")
 seqlevels(h3k4) = sub("chr", "", seqlevels(h3k4))
 h3k4 = reduce(h3k4, min.gapwidth = 1000)
 
