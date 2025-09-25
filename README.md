@@ -21,5 +21,5 @@ The score calibration adjusts the score of a peak (the -log10 p-value) by the ab
 
 ## Overview
 
-![alt text](./eCLIP_Workflow.pdf)
+![alt text](./eCLIP_Workflow.png)
 
