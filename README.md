@@ -5,6 +5,8 @@ Running enhanced CLIP analysis on HPC cluster with PBS Pro
 ## Description
 
 This repo contains the scripts needed from start to finish
+Note that the peakcaller depends on an annotation for peakcalling, so eCLIP signal that doens't fall in the bounds of the transcriptome is lost.
+So, we need to make our own transcriptome, and provide it to CLIPper.
 
 * preprocessing - UMI extraction, adapter trimming, mapping to human genome
 * peakcalling - generate custom annotation for peakcaller, call peaks using CLIPpers [IDR](https://www.encodeproject.org/pipelines/ENCPL357ADL/)
