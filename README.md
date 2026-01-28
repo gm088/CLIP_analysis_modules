@@ -4,6 +4,11 @@ Running enhanced CLIP analysis on HPC cluster with PBS Pro
 
 ## Description
 
+The key adaptations of this workflow are:
+* we provide a custom transcriptome, which was assembled using RNA-seq data generated in-house. This expands the domain in which eCLIP peaks can be called, thereby greatly increasing the sensitivity of the peakcalling. Very relevant for RBPs that bind to noncoding RNAs;
+* We adjust the score of the peaks called by the peakcaller. The score of the peaks from the peakcaller can be misleading because eCLIP peak intensity is directly affected by the abundance of the RNA species and thus may not represent 'significant binding';
+* The initial motif search strategy constructs a background that is composed of the peak summit itself while the foreground is flanking the peaks. This approach was adopted due to the nature of the eCLIP method (schematic todo).
+
 This repo contains the scripts needed from start to finish
 Note that the peakcaller depends on an annotation for peakcalling, so eCLIP signal that doens't fall in the bounds of the transcriptome is lost.
 So, we need to make our own transcriptome, and provide it to CLIPper.
